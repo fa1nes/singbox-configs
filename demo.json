@@ -1,0 +1,590 @@
+{
+  "$schema": "https://sing-box.sagernet.org/schema.json",
+  "log": {
+    "level": "error"
+  },
+  "ntp": {
+    "enabled": true,
+    "server": "ntp.aliyun.com",
+    "detour": "DIRECT"
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "aliyun",
+        "type": "https",
+        "detour": "DIRECT",
+        "server": "223.5.5.5"
+      },
+      {
+        "tag": "cloudflare",
+        "type": "https",
+        "detour": "PROXY",
+        "server": "1.1.1.1"
+      },
+      {
+        "tag": "google",
+        "type": "udp",
+        "detour": "PROXY",
+        "server": "8.8.8.8"
+      },
+      {
+        "tag": "fakeip",
+        "type": "fakeip",
+        "inet4_range": "198.18.0.0/15",
+        "inet6_range": "fc00::/18"
+      },
+      {
+        "tag": "tailscale",
+        "type": "tailscale",
+        "endpoint": "ts-ep",
+        "accept_search_domain": true
+      }
+    ],
+    "rules": [
+      {
+        "preferred_by": "tailscale",
+        "action": "route",
+        "server": "tailscale",
+        "disable_optimistic_cache": true
+      },
+      {
+        "rule_set": "geosite-category-ads-all",
+        "action": "predefined",
+        "answer": [
+          "*. IN A 0.0.0.0",
+          "*. IN AAAA ::"
+        ]
+      },
+      {
+        "query_type": [
+          "HTTPS",
+          "SVCB"
+        ],
+        "action": "predefined"
+      },
+      {
+        "domain": [
+          "cpa.loocc.com",
+          "sub-store.loocc.com"
+        ],
+        "action": "route",
+        "server": "aliyun"
+      },
+      {
+        "rule_set": "fakeip-filter",
+        "action": "route",
+        "server": "aliyun"
+      },
+      {
+        "rule_set": "geosite-apple",
+        "action": "route",
+        "server": "aliyun"
+      },
+      {
+        "domain_suffix": "telegram.org",
+        "action": "route",
+        "server": "cloudflare"
+      },
+      {
+        "rule_set": [
+          "geosite-cn",
+          "geosite-geolocation-cn"
+        ],
+        "action": "route",
+        "server": "aliyun"
+      },
+      {
+        "rule_set": "geosite-geolocation-!cn",
+        "invert": true,
+        "action": "evaluate",
+        "server": "aliyun",
+        "tag": "aliyun-response",
+        "timeout": "300ms"
+      },
+      {
+        "match_response": "aliyun-response",
+        "response_rcode": "NOERROR",
+        "rule_set": "geoip-cn",
+        "ip_accept_any": true,
+        "action": "respond"
+      },
+      {
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
+        "action": "route",
+        "server": "fakeip"
+      }
+    ],
+    "final": "cloudflare",
+    "reverse_mapping": true,
+    "timeout": "4s",
+    "optimistic": {
+      "enabled": true,
+      "timeout": "1h0m0s"
+    }
+  },
+  "http_clients": [
+    {
+      "tag": "rule-download",
+      "detour": "PROXY"
+    },
+    {
+      "tag": "sub-download",
+      "detour": "DIRECT"
+    }
+  ],
+  "endpoints": [
+    {
+      "tag": "ts-ep",
+      "type": "tailscale",
+      "detour": "DIRECT",
+      "state_directory": "/etc/sing-box/ts-state",
+      "auth_key": "你的Tailscale授权密钥",
+      "hostname": "你的Tailscale主机名",
+      "accept_routes": true,
+      "advertise_exit_node": true,
+      "advertise_routes": [
+        "192.168.1.0/24"
+      ]
+    }
+  ],
+  "inbounds": [
+    {
+      "tag": "tun-in",
+      "type": "tun",
+      "interface_name": "singbox-tun0",
+      "address": [
+        "172.18.0.1/30",
+        "fdfe:dcba:9876::1/126"
+      ],
+      "dns_mode": "hijack",
+      "auto_route": true,
+      "auto_redirect": true,
+      "strict_route": true,
+      "route_exclude_address_set": [
+        "geoip-cn"
+      ],
+      "include_interface": [
+        "br-lan"
+      ],
+      "udp_timeout": "60s",
+      "stack": "mixed"
+    },
+    {
+      "tag": "socks-lan",
+      "type": "socks",
+      "listen": "0.0.0.0",
+      "listen_port": 7891,
+      "users": [
+        {
+          "username": "Clash",
+          "password": "你的密码"
+        }
+      ]
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "PROXY",
+      "type": "selector",
+      "providers": [
+        "SUB"
+      ],
+      "exclude": "(?i)(warp)",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "GLOBAL",
+      "type": "selector",
+      "providers": [
+        "SUB"
+      ],
+      "exclude": "(?i)(warp)",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "YOUTUBE",
+      "type": "selector",
+      "outbounds": [
+        "HK",
+        "US"
+      ],
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "AI",
+      "type": "urltest",
+      "outbounds": [
+        "TW",
+        "US"
+      ],
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "EMBY",
+      "type": "selector",
+      "providers": [
+        "SUB"
+      ],
+      "exclude": "(?i)(warp)",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "SPEEDTEST",
+      "type": "selector",
+      "providers": [
+        "SUB"
+      ],
+      "exclude": "(?i)(warp)",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "HK",
+      "type": "selector",
+      "providers": [
+        "SUB"
+      ],
+      "exclude": "(?i)(warp)",
+      "include": "(?i)(香港|港|🇭🇰|hong ?kong|(^|[^a-z])hkg?([0-9]+)?([^a-z]|$))",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "TW",
+      "type": "selector",
+      "providers": [
+        "SUB"
+      ],
+      "exclude": "(?i)(warp)",
+      "include": "(?i)(台湾|臺灣|台灣|🇹🇼|tai ?wan|(^|[^a-z])tw([0-9]+)?([^a-z]|$))",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "SG",
+      "type": "selector",
+      "providers": [
+        "SUB"
+      ],
+      "exclude": "(?i)(warp)",
+      "include": "(?i)(新加坡|狮城|獅城|🇸🇬|singapore|(^|[^a-z])sg([0-9]+)?([^a-z]|$))",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "US",
+      "type": "selector",
+      "providers": [
+        "SUB"
+      ],
+      "exclude": "(?i)(warp)",
+      "include": "(?i)(美国|美國|美西|美东|美東|🇺🇸|united ?states|america|(^|[^a-z])usa?([0-9]+)?([^a-z]|$))",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "JP",
+      "type": "selector",
+      "providers": [
+        "SUB"
+      ],
+      "exclude": "(?i)(warp)",
+      "include": "(?i)(日本|东京|東京|🇯🇵|japan|(^|[^a-z])jp([0-9]+)?([^a-z]|$))",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "DIRECT",
+      "type": "direct",
+      "domain_resolver": "aliyun"
+    },
+    {
+      "tag": "bridge-out",
+      "type": "bridge"
+    }
+  ],
+  "providers": [
+    {
+      "tag": "SUB",
+      "type": "remote",
+      "url": "https://example.com/subscription",
+      "http_client": "sub-download",
+      "update_interval": "24h0m0s",
+      "health_check": {
+        "enabled": true,
+        "url": "https://example.com/subscription",
+        "interval": "1h0m0s",
+        "timeout": "10s"
+      }
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "process_name": [
+          "nexttrace",
+          "ntrace",
+          "iperf3",
+          "tcping",
+          "mtr",
+          "mtr-packet"
+        ],
+        "outbound": "DIRECT"
+      },
+      {
+        "preferred_by": "ts-ep",
+        "outbound": "ts-ep"
+      },
+      {
+        "ip_cidr": [
+          "127.0.0.0/8",
+          "::1/128"
+        ],
+        "port": 53,
+        "action": "hijack-dns"
+      },
+      {
+        "preferred_by": "bridge-out",
+        "ip_is_private": true,
+        "outbound": "bridge-out"
+      },
+      {
+        "ip_is_private": true,
+        "outbound": "DIRECT"
+      },
+      {
+        "type": "logical",
+        "mode": "and",
+        "rules": [
+          {
+            "ip_version": 6
+          },
+          {
+            "default_interface_address": [
+              "2000::/3"
+            ],
+            "invert": true
+          }
+        ],
+        "action": "reject"
+      },
+      {
+        "network": "icmp",
+        "action": "bypass",
+        "outbound": "DIRECT"
+      },
+      {
+        "rule_set": "polluted-ip",
+        "action": "reject",
+        "method": "drop"
+      },
+      {
+        "action": "sniff",
+        "sniffer": [
+          "tls",
+          "quic",
+          "http",
+          "dns",
+          "stun"
+        ]
+      },
+      {
+        "type": "logical",
+        "mode": "and",
+        "rules": [
+          {
+            "protocol": "stun"
+          },
+          {
+            "rule_set": "geoip-cn",
+            "invert": true
+          }
+        ],
+        "action": "reject"
+      },
+      {
+        "rule_set": "doh-block",
+        "port": 443,
+        "action": "reject"
+      },
+      {
+        "rule_set": [
+          "httpdns-block",
+          "geosite-category-ads-all"
+        ],
+        "action": "reject",
+        "method": "drop"
+      },
+      {
+        "protocol": "dns",
+        "action": "hijack-dns"
+      },
+      {
+        "clash_mode": "Direct",
+        "outbound": "DIRECT"
+      },
+      {
+        "clash_mode": "Global",
+        "outbound": "GLOBAL"
+      },
+      {
+        "domain": [
+          "cpa.loocc.com",
+          "sub-store.loocc.com"
+        ],
+        "outbound": "DIRECT"
+      },
+      {
+        "domain": [
+          "challenges.cloudflare.com",
+          "stun.cloudflare.com"
+        ],
+        "outbound": "TW"
+      },
+      {
+        "domain_suffix": "bgp.tools",
+        "outbound": "TW"
+      },
+      {
+        "domain": "token.safebrowsing.apple",
+        "action": "reject"
+      },
+      {
+        "rule_set": "geosite-apple",
+        "outbound": "DIRECT"
+      },
+      {
+        "rule_set": "geosite-category-ai-!cn",
+        "outbound": "AI"
+      },
+      {
+        "rule_set": "geosite-netflix",
+        "outbound": "TW"
+      },
+      {
+        "rule_set": "emby",
+        "outbound": "EMBY"
+      },
+      {
+        "rule_set": "speedtest-international",
+        "outbound": "SPEEDTEST"
+      },
+      {
+        "rule_set": "geosite-youtube",
+        "outbound": "YOUTUBE"
+      },
+      {
+        "rule_set": "telegram-dc5",
+        "outbound": "SG"
+      },
+      {
+        "rule_set": "telegram-dc13",
+        "outbound": "US"
+      },
+      {
+        "rule_set": "telegram-dc24",
+        "outbound": "HK"
+      },
+      {
+        "rule_set": "geosite-google",
+        "outbound": "PROXY"
+      },
+      {
+        "rule_set": "geosite-geolocation-!cn",
+        "outbound": "PROXY"
+      },
+      {
+        "action": "resolve",
+        "server": "aliyun",
+        "strategy": "prefer_ipv4"
+      },
+      {
+        "rule_set": [
+          "geosite-cn",
+          "geosite-geolocation-cn",
+          "geoip-cn"
+        ],
+        "outbound": "DIRECT"
+      }
+    ],
+    "rule_set": [
+      {
+        "tag": "geoip-cn",
+        "type": "remote",
+        "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geoip@rule-set/geoip-cn.srs",
+        "format": "binary"
+      },
+      {
+        "tag": [
+          "geosite-cn",
+          "geosite-apple",
+          "geosite-google",
+          "geosite-netflix",
+          "geosite-youtube",
+          "geosite-geolocation-cn",
+          "geosite-category-ai-!cn",
+          "geosite-geolocation-!cn",
+          "geosite-category-ads-all"
+        ],
+        "type": "remote",
+        "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geosite@rule-set/{tag}.srs",
+        "format": "binary"
+      },
+      {
+        "tag": [
+          "emby",
+          "doh-block",
+          "polluted-ip",
+          "telegram-dc5",
+          "telegram-dc13",
+          "telegram-dc24",
+          "fakeip-filter",
+          "httpdns-block",
+          "speedtest-international"
+        ],
+        "type": "remote",
+        "url": "https://cdn.jsdelivr.net/gh/fa1nes/sing-box-rules@main/srs/{tag}.srs",
+        "format": "binary"
+      }
+    ],
+    "final": "PROXY",
+    "auto_detect_interface": true,
+    "default_domain_resolver": "aliyun",
+    "default_http_client": "rule-download"
+  },
+  "services": [
+    {
+      "tag": "api",
+      "type": "api",
+      "listen": "0.0.0.0",
+      "listen_port": 9090,
+      "secret": "你的API密钥",
+      "access_control_allow_origin": [
+        "http://127.0.0.1",
+        "http://localhost"
+      ],
+      "access_control_allow_private_network": true,
+      "dashboard": {
+        "enabled": true,
+        "path": "/etc/sing-box/dashboard",
+        "download_url": "https://example.com/subscription",
+        "http_client": "rule-download",
+        "update_interval": "1d"
+      }
+    }
+  ],
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "path": "/etc/sing-box/cache.db",
+      "cache_id": "immortalwrt-dualstack",
+      "store_fakeip": true,
+      "store_dns": true
+    },
+    "clash_api": {
+      "external_controller": "0.0.0.0:9091",
+      "external_ui": "/etc/sing-box/zashboard",
+      "external_ui_download_url": "https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip",
+      "external_ui_download_detour": "PROXY",
+      "secret": "你的API密钥"
+    }
+  }
+}
