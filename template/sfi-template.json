@@ -1,5 +1,4 @@
 {
-  "$schema": "https://sing-box.sagernet.org/schema.json",
   "log": {
     "level": "error"
   },
@@ -49,31 +48,20 @@
       },
       {
         "query_type": "PTR",
-        "action": "predefined"
+        "action": "predefined",
+        "rcode": "NXDOMAIN"
+      },
+      {
+        "domain_suffix": ".arpa",
+        "action": "predefined",
+        "rcode": "NXDOMAIN"
       },
       {
         "domain_suffix": [
           ".local",
-          ".lan",
-          ".arpa"
+          ".lan"
         ],
         "action": "predefined"
-      },
-      {
-        "rule_set": "geosite-category-ads-all",
-        "query_type": "A",
-        "action": "predefined",
-        "answer": [
-          "*. IN A 0.0.0.0"
-        ]
-      },
-      {
-        "rule_set": "geosite-category-ads-all",
-        "query_type": "AAAA",
-        "action": "predefined",
-        "answer": [
-          "*. IN AAAA ::"
-        ]
       },
       {
         "query_type": [
@@ -130,10 +118,10 @@
       }
     ],
     "final": "google",
-    "cache_capacity": 4096,
+    "cache_capacity": 1024,
     "optimistic": {
       "enabled": true,
-      "timeout": "24h"
+      "timeout": "10m"
     },
     "timeout": "2s"
   },
@@ -189,6 +177,14 @@
       "interrupt_exist_connections": true
     },
     {
+      "tag": "GLOBAL",
+      "type": "selector",
+      "outbounds": [
+        "DIRECT"
+      ],
+      "interrupt_exist_connections": true
+    },
+    {
       "tag": "YOUTUBE",
       "type": "selector",
       "outbounds": [
@@ -214,54 +210,6 @@
     },
     {
       "tag": "SPEEDTEST",
-      "type": "selector",
-      "outbounds": [
-        "DIRECT"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "HK",
-      "type": "selector",
-      "outbounds": [
-        "DIRECT"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "TW",
-      "type": "selector",
-      "outbounds": [
-        "DIRECT"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "SG",
-      "type": "selector",
-      "outbounds": [
-        "DIRECT"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "US",
-      "type": "selector",
-      "outbounds": [
-        "DIRECT"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "JP",
-      "type": "selector",
-      "outbounds": [
-        "DIRECT"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "GLOBAL",
       "type": "selector",
       "outbounds": [
         "DIRECT"
@@ -324,10 +272,7 @@
         "action": "reject"
       },
       {
-        "rule_set": [
-          "httpdns-block",
-          "geosite-category-ads-all"
-        ],
+        "rule_set": "httpdns-block",
         "action": "reject"
       },
       {
@@ -339,14 +284,6 @@
         "clash_mode": "Global",
         "action": "route",
         "outbound": "GLOBAL"
-      },
-      {
-        "domain": [
-          "challenges.cloudflare.com",
-          "stun.cloudflare.com"
-        ],
-        "action": "route",
-        "outbound": "TW"
       },
       {
         "rule_set": "speedtest-international",
@@ -370,7 +307,7 @@
       {
         "rule_set": "geosite-netflix",
         "action": "route",
-        "outbound": "TW"
+        "outbound": "PROXY"
       },
       {
         "rule_set": "emby",
@@ -385,17 +322,17 @@
       {
         "rule_set": "telegram-dc5",
         "action": "route",
-        "outbound": "SG"
+        "outbound": "PROXY"
       },
       {
         "rule_set": "telegram-dc13",
         "action": "route",
-        "outbound": "US"
+        "outbound": "PROXY"
       },
       {
         "rule_set": "telegram-dc24",
         "action": "route",
-        "outbound": "HK"
+        "outbound": "PROXY"
       },
       {
         "rule_set": "geosite-google",
@@ -436,8 +373,7 @@
           "geosite-youtube",
           "geosite-geolocation-cn",
           "geosite-category-ai-!cn",
-          "geosite-geolocation-!cn",
-          "geosite-category-ads-all"
+          "geosite-geolocation-!cn"
         ],
         "type": "remote",
         "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geosite@rule-set/{tag}.srs",
@@ -475,8 +411,7 @@
   "experimental": {
     "cache_file": {
       "enabled": true,
-      "store_fakeip": true,
-      "store_dns": true
+      "store_fakeip": true
     }
   }
 }
