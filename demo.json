@@ -1,5 +1,4 @@
 {
-  "$schema": "https://sing-box.sagernet.org/schema.json",
   "log": {
     "level": "error"
   },
@@ -47,14 +46,6 @@
         "action": "route",
         "server": "tailscale",
         "disable_optimistic_cache": true
-      },
-      {
-        "rule_set": "geosite-category-ads-all",
-        "action": "predefined",
-        "answer": [
-          "*. IN A 0.0.0.0",
-          "*. IN AAAA ::"
-        ]
       },
       {
         "query_type": [
@@ -119,6 +110,7 @@
       }
     ],
     "final": "cloudflare",
+    "cache_capacity": 4096,
     "reverse_mapping": true,
     "timeout": "4s",
     "optimistic": {
@@ -199,7 +191,8 @@
       "type": "selector",
       "outbounds": [
         "HK",
-        "US"
+        "US",
+        "JP"
       ],
       "interrupt_exist_connections": true
     },
@@ -402,10 +395,7 @@
         "action": "reject"
       },
       {
-        "rule_set": [
-          "httpdns-block",
-          "geosite-category-ads-all"
-        ],
+        "rule_set": "httpdns-block",
         "action": "reject",
         "method": "drop"
       },
@@ -431,13 +421,6 @@
           "sub-store.loocc.com"
         ],
         "outbound": "DIRECT"
-      },
-      {
-        "domain": [
-          "challenges.cloudflare.com",
-          "stun.cloudflare.com"
-        ],
-        "outbound": "TW"
       },
       {
         "domain_suffix": "bgp.tools",
@@ -485,7 +468,7 @@
       },
       {
         "rule_set": "telegram-dc24",
-        "outbound": "HK"
+        "outbound": "PROXY"
       },
       {
         "rule_set": "geosite-google",
@@ -526,8 +509,7 @@
           "geosite-youtube",
           "geosite-geolocation-cn",
           "geosite-category-ai-!cn",
-          "geosite-geolocation-!cn",
-          "geosite-category-ads-all"
+          "geosite-geolocation-!cn"
         ],
         "type": "remote",
         "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geosite@rule-set/{tag}.srs",
@@ -559,8 +541,7 @@
     "cache_file": {
       "enabled": true,
       "path": "cache.db",
-      "store_fakeip": true,
-      "store_dns": true
+      "store_fakeip": true
     },
     "clash_api": {
       "external_controller": "127.0.0.1:9090",
