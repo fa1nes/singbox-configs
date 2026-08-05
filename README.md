@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Linux / OpenWrt / ImmortalWrt
 
 Linux 网关与 OpenWrt / ImmortalWrt 透明代理模板，配置文件为 `demo.json`。
@@ -79,7 +78,3 @@ mtr-packet
 - Selector：<https://sing-boxr.dustinwin.cc.cd/zh/configuration/outbound/selector/>
 - 在线文档：<https://sing-boxr.dustinwin.cc.cd/zh/configuration/>
 - 更新频道：<https://t.me/sing_box_reF1nd>
-=======
-# singbox-configs
-sing-box 配置模板(Sub-Store / Windows / OpenWrt, 分支区分)
->>>>>>> 89734ef (Initial commit)
