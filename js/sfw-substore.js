@@ -19,6 +19,7 @@ const REGION_PATTERNS = {
   SG: /singapore|(?:^|[^a-z])sg(?:\d+)?(?:[^a-z]|$)/i,
   US: /united\s*states|america|(?:^|[^a-z])usa?(?:\d+)?(?:[^a-z]|$)/i,
   JP: /japan|tokyo|(?:^|[^a-z])jp(?:\d+)?(?:[^a-z]|$)/i,
+  DE: /germany|frankfurt|(?:^|[^a-z])de(?:\d+)?(?:[^a-z]|$)/i,
 };
 
 const CHAIN_ENTRY_PATTERNS = [
@@ -38,12 +39,27 @@ const TAG_REPLACEMENTS = [
 
 const CHAIN_REGIONS = ['HK', 'TW', 'SG', 'US', 'JP'];
 const BASE_TAGS = new Set(['DIRECT', 'bridge-out']);
-const POLICY_TAGS = new Set([
+
+// 模板里固定存在的策略组
+const FIXED_POLICY_TAGS = new Set([
   'PROXY', 'GLOBAL', 'YOUTUBE', 'AI', 'EMBY', 'SPEEDTEST', 'DOWNLOAD',
-  'HK', 'TW', 'SG', 'US', 'JP',
 ]);
+
+// 按需创建的分组：订阅里没有对应节点就不建组，顺序即面板展示顺序
+const REGION_GROUP_ORDER = ['HK', 'TW', 'SG', 'US', 'JP', 'DE', 'OTHERS'];
+
+// 分流规则的首选地区；该地区无节点时统一回落到 REGION_FALLBACK
+const REGION_RULE_TARGETS = [
+  { ruleSet: 'telegram-dc5', region: 'SG' },
+  { ruleSet: 'telegram-dc13', region: 'US' },
+  { ruleSet: 'telegram-dc24', region: 'DE' },
+  { ruleSet: 'geosite-netflix', region: 'TW' },
+];
+const REGION_FALLBACK = 'PROXY';
+
 const RESERVED_TAGS = new Set([
-  ...POLICY_TAGS,
+  ...FIXED_POLICY_TAGS,
+  ...REGION_GROUP_ORDER,
   ...BASE_TAGS,
   'ts-ep',
 ]);
@@ -136,7 +152,7 @@ function matchRegion(tag, regions) {
 
 function replaceGeneratedOutbounds(config, proxies) {
   const policy = (config.outbounds || []).filter((outbound) =>
-    outbound && POLICY_TAGS.has(outbound.tag)
+    outbound && FIXED_POLICY_TAGS.has(outbound.tag)
   );
   const base = (config.outbounds || []).filter((outbound) =>
     outbound && BASE_TAGS.has(outbound.tag)
@@ -147,13 +163,11 @@ function replaceGeneratedOutbounds(config, proxies) {
 function fillPolicyGroups(config, proxies) {
   const all = tags(proxies);
   const allOrDirect = all.length ? all : ['DIRECT'];
-  const regionTags = {
-    HK: tags(proxies, REGION_PATTERNS.HK),
-    TW: tags(proxies, REGION_PATTERNS.TW),
-    SG: tags(proxies, REGION_PATTERNS.SG),
-    US: tags(proxies, REGION_PATTERNS.US),
-    JP: tags(proxies, REGION_PATTERNS.JP),
-  };
+  const regionTags = collectRegionTags(proxies);
+
+  syncRegionGroups(config, regionTags);
+  syncRegionRules(config, regionTags);
+
   const regionalPolicy = (regions) => {
     const values = uniq(regions.flatMap((region) => regionTags[region] || []));
     return fallback(values, allOrDirect);
@@ -166,17 +180,65 @@ function fillPolicyGroups(config, proxies) {
     EMBY: allOrDirect,
     SPEEDTEST: allOrDirect,
     DOWNLOAD: uniq(all.concat(['DIRECT'])),
-    HK: fallback(regionTags.HK, allOrDirect),
-    TW: fallback(regionTags.TW, allOrDirect),
-    SG: fallback(regionTags.SG, allOrDirect),
-    US: fallback(regionTags.US, allOrDirect),
-    JP: fallback(regionTags.JP, allOrDirect),
   };
 
   for (const outbound of config.outbounds || []) {
     if (!outbound || !Object.prototype.hasOwnProperty.call(groups, outbound.tag)) continue;
     outbound.outbounds = groups[outbound.tag];
     outbound.interrupt_exist_connections = true;
+  }
+}
+
+function collectRegionTags(proxies) {
+  const knownPatterns = Object.values(REGION_PATTERNS);
+  const regionTags = {};
+  for (const region of Object.keys(REGION_PATTERNS)) {
+    regionTags[region] = tags(proxies, REGION_PATTERNS[region]);
+  }
+  regionTags.OTHERS = (proxies || [])
+    .filter((proxy) => proxy?.tag && !knownPatterns.some((pattern) => pattern.test(proxy.tag)))
+    .map((proxy) => proxy.tag);
+  return regionTags;
+}
+
+// 地区组按需存在：订阅里没有该地区的节点就不建组，避免面板上出现选不出东西的空组。
+function syncRegionGroups(config, regionTags) {
+  const outbounds = config.outbounds || [];
+  const groups = REGION_GROUP_ORDER
+    .filter((tag) => (regionTags[tag] || []).length)
+    .map((tag) => ({
+      tag,
+      type: 'selector',
+      outbounds: regionTags[tag],
+      interrupt_exist_connections: true,
+    }));
+  outbounds.splice(lastFixedPolicyIndex(outbounds) + 1, 0, ...groups);
+}
+
+function lastFixedPolicyIndex(outbounds) {
+  let last = -1;
+  for (let i = 0; i < outbounds.length; i += 1) {
+    if (FIXED_POLICY_TAGS.has(outbounds[i]?.tag)) last = i;
+  }
+  return last;
+}
+
+// 模板里这些规则一律指向 REGION_FALLBACK，这里按实际存在的地区组升级；
+// 组不存在时保持回落，否则会留下悬空 outbound 引用导致内核拒绝加载。
+function syncRegionRules(config, regionTags) {
+  const rules = config.route?.rules;
+  if (!Array.isArray(rules)) return;
+
+  for (const { ruleSet, region } of REGION_RULE_TARGETS) {
+    const rule = rules.find((item) => item?.rule_set === ruleSet);
+    if (rule) rule.outbound = region;
+  }
+
+  const available = new Set(REGION_GROUP_ORDER.filter((tag) => (regionTags[tag] || []).length));
+  for (const rule of rules) {
+    if (REGION_GROUP_ORDER.includes(rule?.outbound) && !available.has(rule.outbound)) {
+      rule.outbound = REGION_FALLBACK;
+    }
   }
 }
 
