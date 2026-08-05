@@ -1,5 +1,4 @@
 {
-  "$schema": "https://sing-box.sagernet.org/schema.json",
   "log": {
     "level": "error"
   },
@@ -47,14 +46,6 @@
         "action": "route",
         "server": "tailscale",
         "disable_optimistic_cache": true
-      },
-      {
-        "rule_set": "geosite-category-ads-all",
-        "action": "predefined",
-        "answer": [
-          "*. IN A 0.0.0.0",
-          "*. IN AAAA ::"
-        ]
       },
       {
         "query_type": [
@@ -111,6 +102,7 @@
       }
     ],
     "final": "cloudflare",
+    "cache_capacity": 2048,
     "reverse_mapping": true,
     "timeout": "4s",
     "optimistic": {
@@ -220,46 +212,6 @@
       "interrupt_exist_connections": true
     },
     {
-      "tag": "HK",
-      "type": "selector",
-      "outbounds": [
-        "DIRECT"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "TW",
-      "type": "selector",
-      "outbounds": [
-        "DIRECT"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "SG",
-      "type": "selector",
-      "outbounds": [
-        "DIRECT"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "US",
-      "type": "selector",
-      "outbounds": [
-        "DIRECT"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "JP",
-      "type": "selector",
-      "outbounds": [
-        "DIRECT"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
       "tag": "DIRECT",
       "type": "direct",
       "domain_resolver": "aliyun"
@@ -308,7 +260,9 @@
         "mode": "and",
         "rules": [
           {
-            "ip_version": 6
+            "ip_cidr": [
+              "2000::/3"
+            ]
           },
           {
             "default_interface_address": [
@@ -367,10 +321,7 @@
         "action": "reject"
       },
       {
-        "rule_set": [
-          "httpdns-block",
-          "geosite-category-ads-all"
-        ],
+        "rule_set": "httpdns-block",
         "action": "reject",
         "method": "drop"
       },
@@ -391,13 +342,6 @@
         "outbound": "GLOBAL"
       },
       {
-        "domain": [
-          "challenges.cloudflare.com",
-          "stun.cloudflare.com"
-        ],
-        "outbound": "TW"
-      },
-      {
         "rule_set": "speedtest-international",
         "outbound": "SPEEDTEST"
       },
@@ -415,7 +359,7 @@
       },
       {
         "rule_set": "geosite-netflix",
-        "outbound": "TW"
+        "outbound": "PROXY"
       },
       {
         "rule_set": "emby",
@@ -427,15 +371,15 @@
       },
       {
         "rule_set": "telegram-dc5",
-        "outbound": "SG"
+        "outbound": "PROXY"
       },
       {
         "rule_set": "telegram-dc13",
-        "outbound": "US"
+        "outbound": "PROXY"
       },
       {
         "rule_set": "telegram-dc24",
-        "outbound": "HK"
+        "outbound": "PROXY"
       },
       {
         "rule_set": "geosite-google",
@@ -475,8 +419,7 @@
           "geosite-youtube",
           "geosite-geolocation-cn",
           "geosite-category-ai-!cn",
-          "geosite-geolocation-!cn",
-          "geosite-category-ads-all"
+          "geosite-geolocation-!cn"
         ],
         "type": "remote",
         "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geosite@rule-set/{tag}.srs",
@@ -508,8 +451,7 @@
     "cache_file": {
       "enabled": true,
       "path": "cache.db",
-      "store_fakeip": true,
-      "store_dns": true
+      "store_fakeip": true
     },
     "clash_api": {
       "external_controller": "127.0.0.1:9090",
