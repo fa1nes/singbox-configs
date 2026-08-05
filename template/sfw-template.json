@@ -28,12 +28,6 @@
         "server": "1.1.1.1"
       },
       {
-        "tag": "google",
-        "type": "udp",
-        "detour": "PROXY",
-        "server": "8.8.8.8"
-      },
-      {
         "tag": "fakeip",
         "type": "fakeip",
         "inet4_range": "198.18.0.0/15",
