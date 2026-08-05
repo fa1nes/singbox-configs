@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Windows
 
 Windows sing-box 配置模板，配置文件为 `demo.json`。
@@ -66,7 +65,3 @@ Windows 的 `process_name` 按可执行文件完整文件名精确匹配：
 - Selector：<https://sing-boxr.dustinwin.cc.cd/zh/configuration/outbound/selector/>
 - 在线文档：<https://sing-boxr.dustinwin.cc.cd/zh/configuration/>
 - 更新频道：<https://t.me/sing_box_reF1nd>
-=======
-# singbox-configs
-sing-box 配置模板(Sub-Store / Windows / OpenWrt, 分支区分)
->>>>>>> 89734ef (Initial commit)
