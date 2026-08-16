@@ -241,15 +241,6 @@
       "interrupt_exist_connections": true
     },
     {
-      "tag": "AI",
-      "type": "urltest",
-      "outbounds": [
-        "TW",
-        "US"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
       "tag": "EMBY",
       "type": "selector",
       "providers": [
@@ -435,8 +426,7 @@
       },
       {
         "rule_set": "httpdns-block",
-        "action": "reject",
-        "method": "drop"
+        "action": "reject"
       },
       {
         "protocol": "dns",
@@ -470,12 +460,19 @@
         "outbound": "DIRECT"
       },
       {
-        "rule_set": "geosite-category-ai-!cn",
-        "outbound": "AI"
+        "domain": [
+          "gemini.google.com",
+          "aistudio.google.com",
+          "bard.google.com",
+          "alkalimakersuite-pa.clients6.google.com",
+          "proactivebackend-pa.googleapis.com"
+        ],
+        "domain_suffix": "generativelanguage.googleapis.com",
+        "outbound": "HK"
       },
       {
-        "rule_set": "geosite-netflix",
-        "outbound": "TW"
+        "rule_set": "geosite-category-ai-!cn",
+        "outbound": "US"
       },
       {
         "rule_set": "emby",
@@ -535,7 +532,6 @@
           "geosite-cn",
           "geosite-apple",
           "geosite-google",
-          "geosite-netflix",
           "geosite-youtube",
           "geosite-geolocation-cn",
           "geosite-category-ai-!cn",
