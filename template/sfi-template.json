@@ -228,14 +228,6 @@
       "interrupt_exist_connections": true
     },
     {
-      "tag": "AI",
-      "type": "selector",
-      "outbounds": [
-        "DIRECT"
-      ],
-      "interrupt_exist_connections": true
-    },
-    {
       "tag": "EMBY",
       "type": "selector",
       "outbounds": [
@@ -335,12 +327,19 @@
         "outbound": "DIRECT"
       },
       {
-        "rule_set": "geosite-category-ai-!cn",
+        "domain": [
+          "gemini.google.com",
+          "aistudio.google.com",
+          "bard.google.com",
+          "alkalimakersuite-pa.clients6.google.com",
+          "proactivebackend-pa.googleapis.com"
+        ],
+        "domain_suffix": "generativelanguage.googleapis.com",
         "action": "route",
-        "outbound": "AI"
+        "outbound": "PROXY"
       },
       {
-        "rule_set": "geosite-netflix",
+        "rule_set": "geosite-category-ai-!cn",
         "action": "route",
         "outbound": "PROXY"
       },
@@ -404,7 +403,6 @@
           "geosite-cn",
           "geosite-apple",
           "geosite-google",
-          "geosite-netflix",
           "geosite-youtube",
           "geosite-geolocation-cn",
           "geosite-category-ai-!cn",
