@@ -42,7 +42,7 @@ const BASE_TAGS = new Set(['DIRECT', 'bridge-out']);
 
 // 模板里固定存在的策略组
 const FIXED_POLICY_TAGS = new Set([
-  'PROXY', 'GLOBAL', 'YOUTUBE', 'AI', 'EMBY', 'SPEEDTEST', 'DOWNLOAD',
+  'PROXY', 'GLOBAL', 'YOUTUBE', 'EMBY', 'SPEEDTEST', 'DOWNLOAD',
 ]);
 
 // 按需创建的分组：订阅里没有对应节点就不建组，顺序即面板展示顺序
@@ -50,10 +50,11 @@ const REGION_GROUP_ORDER = ['HK', 'TW', 'SG', 'US', 'JP', 'DE', 'OTHERS'];
 
 // 分流规则的首选地区；该地区无节点时统一回落到 REGION_FALLBACK
 const REGION_RULE_TARGETS = [
-  { ruleSet: 'telegram-dc5', region: 'SG' },
-  { ruleSet: 'telegram-dc13', region: 'US' },
-  { ruleSet: 'telegram-dc24', region: 'DE' },
-  { ruleSet: 'geosite-netflix', region: 'TW' },
+  { match: (rule) => rule.rule_set === 'telegram-dc5', region: 'SG' },
+  { match: (rule) => rule.rule_set === 'telegram-dc13', region: 'US' },
+  { match: (rule) => rule.rule_set === 'telegram-dc24', region: 'DE' },
+  { match: (rule) => rule.rule_set === 'geosite-category-ai-!cn', region: 'US' },
+  { match: (rule) => Array.isArray(rule.domain) && rule.domain.includes('gemini.google.com'), region: 'HK' },
 ];
 const REGION_FALLBACK = 'PROXY';
 
@@ -176,7 +177,6 @@ function fillPolicyGroups(config, proxies) {
     PROXY: allOrDirect,
     GLOBAL: allOrDirect,
     YOUTUBE: regionalPolicy(['HK', 'US', 'JP']),
-    AI: regionalPolicy(['TW', 'US']),
     EMBY: allOrDirect,
     SPEEDTEST: allOrDirect,
     DOWNLOAD: uniq(all.concat(['DIRECT'])),
@@ -229,8 +229,8 @@ function syncRegionRules(config, regionTags) {
   const rules = config.route?.rules;
   if (!Array.isArray(rules)) return;
 
-  for (const { ruleSet, region } of REGION_RULE_TARGETS) {
-    const rule = rules.find((item) => item?.rule_set === ruleSet);
+  for (const { match, region } of REGION_RULE_TARGETS) {
+    const rule = rules.find((item) => item && match(item));
     if (rule) rule.outbound = region;
   }
 
