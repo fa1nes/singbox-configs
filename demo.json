@@ -280,16 +280,6 @@
       "interrupt_exist_connections": true
     },
     {
-      "tag": "SG",
-      "type": "selector",
-      "providers": [
-        "SUB"
-      ],
-      "exclude": "(?i)(warp)",
-      "include": "(?i)(新加坡|狮城|獅城|🇸🇬|singapore|(^|[^a-z])sg([0-9]+)?([^a-z]|$))",
-      "interrupt_exist_connections": true
-    },
-    {
       "tag": "US",
       "type": "selector",
       "providers": [
