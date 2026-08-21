@@ -169,6 +169,7 @@
       "state_directory": "/etc/sing-box/ts-state",
       "auth_key": "你的Tailscale授权密钥",
       "hostname": "你的Tailscale主机名",
+      "listen_port": 41641,
       "accept_routes": true,
       "advertise_exit_node": true,
       "advertise_routes": [
@@ -460,14 +461,7 @@
         "outbound": "DIRECT"
       },
       {
-        "domain": [
-          "gemini.google.com",
-          "aistudio.google.com",
-          "bard.google.com",
-          "alkalimakersuite-pa.clients6.google.com",
-          "proactivebackend-pa.googleapis.com"
-        ],
-        "domain_suffix": "generativelanguage.googleapis.com",
+        "rule_set": "geosite-google-gemini",
         "outbound": "HK"
       },
       {
@@ -485,18 +479,6 @@
       {
         "rule_set": "geosite-youtube",
         "outbound": "YOUTUBE"
-      },
-      {
-        "rule_set": "telegram-dc5",
-        "outbound": "SG"
-      },
-      {
-        "rule_set": "telegram-dc13",
-        "outbound": "US"
-      },
-      {
-        "rule_set": "telegram-dc24",
-        "outbound": "PROXY"
       },
       {
         "rule_set": "geosite-google",
@@ -532,6 +514,7 @@
           "geosite-cn",
           "geosite-apple",
           "geosite-google",
+          "geosite-google-gemini",
           "geosite-youtube",
           "geosite-geolocation-cn",
           "geosite-category-ai-!cn",
@@ -546,9 +529,6 @@
           "emby",
           "doh-block",
           "polluted-ip",
-          "telegram-dc5",
-          "telegram-dc13",
-          "telegram-dc24",
           "fakeip-filter",
           "httpdns-block",
           "speedtest-international"
