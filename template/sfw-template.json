@@ -378,14 +378,7 @@
         "outbound": "DIRECT"
       },
       {
-        "domain": [
-          "gemini.google.com",
-          "aistudio.google.com",
-          "bard.google.com",
-          "alkalimakersuite-pa.clients6.google.com",
-          "proactivebackend-pa.googleapis.com"
-        ],
-        "domain_suffix": "generativelanguage.googleapis.com",
+        "rule_set": "geosite-google-gemini",
         "outbound": "PROXY"
       },
       {
@@ -446,6 +439,7 @@
           "geosite-cn",
           "geosite-apple",
           "geosite-google",
+          "geosite-google-gemini",
           "geosite-youtube",
           "geosite-geolocation-cn",
           "geosite-category-ai-!cn",
