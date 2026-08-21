@@ -54,7 +54,7 @@ const REGION_RULE_TARGETS = [
   { match: (rule) => rule.rule_set === 'telegram-dc13', region: 'US' },
   { match: (rule) => rule.rule_set === 'telegram-dc24', region: 'DE' },
   { match: (rule) => rule.rule_set === 'geosite-category-ai-!cn', region: 'US' },
-  { match: (rule) => Array.isArray(rule.domain) && rule.domain.includes('gemini.google.com'), region: 'HK' },
+  { match: (rule) => rule.rule_set === 'geosite-google-gemini', region: 'HK' },
 ];
 const REGION_FALLBACK = 'PROXY';
 
