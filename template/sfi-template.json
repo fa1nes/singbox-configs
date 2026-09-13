@@ -153,6 +153,7 @@
       }
     ],
     "final": "cloudflare",
+    "cache_capacity": 1024,
     "optimistic": true,
     "timeout": "2s"
   },
