@@ -175,9 +175,7 @@
       "address": [
         "172.19.0.1/30"
       ],
-      "dns_mode": "hijack",
-      "auto_route": true,
-      "stack": "go"
+      "auto_route": true
     }
   ],
   "outbounds": [
@@ -238,10 +236,6 @@
           "geoip-cn"
         ],
         "action": "reject"
-      },
-      {
-        "port": 53,
-        "action": "hijack-dns"
       },
       {
         "preferred_by": "ts-ep",
@@ -411,7 +405,8 @@
   "experimental": {
     "cache_file": {
       "enabled": true,
-      "store_fakeip": true
+      "store_fakeip": true,
+      "store_dns": true
     }
   }
 }
