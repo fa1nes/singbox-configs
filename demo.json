@@ -392,10 +392,6 @@
         "action": "reject"
       },
       {
-        "rule_set": "httpdns-block",
-        "action": "reject"
-      },
-      {
         "protocol": "dns",
         "action": "hijack-dns"
       },
@@ -485,7 +481,6 @@
           "doh-block",
           "polluted-ip",
           "fakeip-filter",
-          "httpdns-block",
           "speedtest-international"
         ],
         "type": "remote",
