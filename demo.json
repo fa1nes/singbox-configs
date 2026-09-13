@@ -55,14 +55,6 @@
         "action": "predefined"
       },
       {
-        "domain": [
-          "cpa.loocc.com",
-          "sub-store.loocc.com"
-        ],
-        "action": "route",
-        "server": "aliyun"
-      },
-      {
         "rule_set": "fakeip-filter",
         "action": "route",
         "server": "aliyun"
@@ -143,13 +135,9 @@
       }
     ],
     "final": "cloudflare",
-    "cache_capacity": 2048,
     "reverse_mapping": true,
     "timeout": "4s",
-    "optimistic": {
-      "enabled": true,
-      "timeout": "1h0m0s"
-    }
+    "optimistic": true
   },
   "http_clients": [
     {
@@ -195,9 +183,7 @@
       ],
       "include_interface": [
         "br-lan"
-      ],
-      "udp_timeout": "60s",
-      "stack": "mixed"
+      ]
     },
     {
       "tag": "socks-lan",
@@ -267,16 +253,6 @@
       ],
       "exclude": "(?i)(warp)",
       "include": "(?i)(香港|港|🇭🇰|hong ?kong|(^|[^a-z])hkg?([0-9]+)?([^a-z]|$))",
-      "interrupt_exist_connections": true
-    },
-    {
-      "tag": "TW",
-      "type": "selector",
-      "providers": [
-        "SUB"
-      ],
-      "exclude": "(?i)(warp)",
-      "include": "(?i)(台湾|臺灣|台灣|🇹🇼|tai ?wan|(^|[^a-z])tw([0-9]+)?([^a-z]|$))",
       "interrupt_exist_connections": true
     },
     {
@@ -430,17 +406,6 @@
       {
         "clash_mode": "Global",
         "outbound": "GLOBAL"
-      },
-      {
-        "domain": [
-          "cpa.loocc.com",
-          "sub-store.loocc.com"
-        ],
-        "outbound": "DIRECT"
-      },
-      {
-        "domain_suffix": "bgp.tools",
-        "outbound": "TW"
       },
       {
         "domain": "token.safebrowsing.apple",
