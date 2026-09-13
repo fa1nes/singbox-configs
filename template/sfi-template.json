@@ -153,17 +153,13 @@
       }
     ],
     "final": "cloudflare",
-    "cache_capacity": 1024,
-    "optimistic": {
-      "enabled": true,
-      "timeout": "10m"
-    },
+    "optimistic": true,
     "timeout": "2s"
   },
   "http_clients": [
     {
       "tag": "rule-download",
-      "detour": "PROXY"
+      "detour": "DIRECT"
     }
   ],
   "endpoints": [
@@ -172,7 +168,7 @@
       "type": "tailscale",
       "detour": "DIRECT",
       "state_directory": "ts-state",
-      "hostname": "iPhone",
+      "on_demand": true,
       "accept_routes": true
     }
   ],
@@ -185,8 +181,7 @@
       ],
       "dns_mode": "hijack",
       "auto_route": true,
-      "udp_timeout": "10s",
-      "stack": "mixed",
+      "stack": "go",
       "platform": {
         "http_proxy": {
           "enabled": true,
@@ -262,11 +257,6 @@
         "action": "reject"
       },
       {
-        "network": "icmp",
-        "action": "reject",
-        "method": "drop"
-      },
-      {
         "port": 53,
         "action": "hijack-dns"
       },
@@ -278,6 +268,11 @@
       {
         "ip_is_private": true,
         "action": "route",
+        "outbound": "DIRECT"
+      },
+      {
+        "network": "icmp",
+        "action": "bypass",
         "outbound": "DIRECT"
       },
       {
