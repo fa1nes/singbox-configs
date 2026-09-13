@@ -340,10 +340,6 @@
         "action": "reject"
       },
       {
-        "rule_set": "httpdns-block",
-        "action": "reject"
-      },
-      {
         "protocol": "dns",
         "action": "hijack-dns"
       },
@@ -452,7 +448,6 @@
           "telegram-dc13",
           "telegram-dc24",
           "fakeip-filter",
-          "httpdns-block",
           "speedtest-international"
         ],
         "type": "remote",
