@@ -135,13 +135,9 @@
       }
     ],
     "final": "cloudflare",
-    "cache_capacity": 2048,
     "reverse_mapping": true,
     "timeout": "4s",
-    "optimistic": {
-      "enabled": true,
-      "timeout": "1h0m0s"
-    }
+    "optimistic": true
   },
   "http_clients": [
     {
@@ -170,8 +166,6 @@
       "dns_mode": "hijack",
       "auto_route": true,
       "strict_route": true,
-      "udp_timeout": "60s",
-      "stack": "mixed",
       "platform": {
         "http_proxy": {
           "enabled": true,
