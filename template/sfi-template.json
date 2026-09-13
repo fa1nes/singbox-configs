@@ -295,10 +295,6 @@
         "action": "reject"
       },
       {
-        "rule_set": "httpdns-block",
-        "action": "reject"
-      },
-      {
         "clash_mode": "Direct",
         "action": "route",
         "outbound": "DIRECT"
@@ -411,7 +407,6 @@
           "telegram-dc13",
           "telegram-dc24",
           "fakeip-filter",
-          "httpdns-block",
           "speedtest-international"
         ],
         "type": "remote",
