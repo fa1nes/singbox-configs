@@ -268,6 +268,15 @@
         "outbound": "ts-ep"
       },
       {
+        "ip_cidr": [
+          "192.168.1.1/32",
+          "192.168.1.15/32",
+          "192.168.1.188/32",
+          "192.168.2.1/32"
+        ],
+        "outbound": "ts-ep"
+      },
+      {
         "ip_is_private": true,
         "outbound": "DIRECT"
       },
