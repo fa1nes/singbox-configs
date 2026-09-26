@@ -2,6 +2,11 @@
   "log": {
     "level": "error"
   },
+  "ntp": {
+    "enabled": true,
+    "server": "ntp.aliyun.com",
+    "detour": "DIRECT"
+  },
   "dns": {
     "servers": [
       {
@@ -149,7 +154,10 @@
     ],
     "final": "cloudflare",
     "cache_capacity": 1024,
-    "optimistic": true,
+    "optimistic": {
+      "enabled": true,
+      "timeout": "10m"
+    },
     "timeout": "2s"
   },
   "http_clients": [
@@ -175,7 +183,22 @@
       "address": [
         "172.19.0.1/30"
       ],
-      "auto_route": true
+      "dns_mode": "hijack",
+      "auto_route": true,
+      "udp_timeout": "10s",
+      "platform": {
+        "http_proxy": {
+          "enabled": true,
+          "server": "127.0.0.1",
+          "server_port": 7890
+        }
+      }
+    },
+    {
+      "tag": "mixed-in",
+      "type": "mixed",
+      "listen": "127.0.0.1",
+      "listen_port": 7890
     }
   ],
   "outbounds": [
@@ -238,6 +261,15 @@
         "action": "reject"
       },
       {
+        "network": "icmp",
+        "action": "reject",
+        "method": "drop"
+      },
+      {
+        "port": 53,
+        "action": "hijack-dns"
+      },
+      {
         "preferred_by": "ts-ep",
         "action": "route",
         "outbound": "ts-ep"
@@ -245,11 +277,6 @@
       {
         "ip_is_private": true,
         "action": "route",
-        "outbound": "DIRECT"
-      },
-      {
-        "network": "icmp",
-        "action": "bypass",
         "outbound": "DIRECT"
       },
       {
@@ -268,6 +295,10 @@
       {
         "rule_set": "doh-block",
         "port": 443,
+        "action": "reject"
+      },
+      {
+        "rule_set": "httpdns-block",
         "action": "reject"
       },
       {
@@ -383,6 +414,7 @@
           "telegram-dc13",
           "telegram-dc24",
           "fakeip-filter",
+          "httpdns-block",
           "speedtest-international"
         ],
         "type": "remote",
@@ -405,8 +437,7 @@
   "experimental": {
     "cache_file": {
       "enabled": true,
-      "store_fakeip": true,
-      "store_dns": true
+      "store_fakeip": true
     }
   }
 }
