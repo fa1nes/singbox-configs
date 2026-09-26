@@ -135,9 +135,13 @@
       }
     ],
     "final": "cloudflare",
+    "cache_capacity": 2048,
     "reverse_mapping": true,
     "timeout": "4s",
-    "optimistic": true
+    "optimistic": {
+      "enabled": true,
+      "timeout": "1h0m0s"
+    }
   },
   "http_clients": [
     {
@@ -163,8 +167,10 @@
         "172.19.0.1/30",
         "fdfe:dcba:9876::1/126"
       ],
+      "dns_mode": "hijack",
       "auto_route": true,
       "strict_route": true,
+      "udp_timeout": "60s",
       "platform": {
         "http_proxy": {
           "enabled": true,
@@ -339,6 +345,10 @@
         "action": "reject"
       },
       {
+        "rule_set": "httpdns-block",
+        "action": "reject"
+      },
+      {
         "protocol": "dns",
         "action": "hijack-dns"
       },
@@ -447,6 +457,7 @@
           "telegram-dc13",
           "telegram-dc24",
           "fakeip-filter",
+          "httpdns-block",
           "speedtest-international"
         ],
         "type": "remote",
@@ -463,15 +474,7 @@
     "cache_file": {
       "enabled": true,
       "path": "cache.db",
-      "store_fakeip": true,
-      "store_dns": true,
-      "flush_interval": "5m"
-    },
-    "clash_api": {
-      "external_controller": "127.0.0.1:9090",
-      "external_ui": "zashboard",
-      "external_ui_download_url": "https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip",
-      "external_ui_download_detour": "PROXY"
+      "store_fakeip": true
     }
   }
 }
