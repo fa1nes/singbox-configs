@@ -43,7 +43,6 @@
     "rules": [
       {
         "preferred_by": "tailscale",
-        "action": "route",
         "server": "tailscale",
         "disable_optimistic_cache": true
       },
@@ -56,17 +55,14 @@
       },
       {
         "rule_set": "fakeip-filter",
-        "action": "route",
         "server": "aliyun"
       },
       {
         "rule_set": "geosite-apple",
-        "action": "route",
         "server": "aliyun"
       },
       {
         "domain_suffix": "telegram.org",
-        "action": "route",
         "server": "cloudflare"
       },
       {
@@ -130,7 +126,6 @@
           "A",
           "AAAA"
         ],
-        "action": "route",
         "server": "fakeip"
       }
     ],
@@ -140,7 +135,7 @@
     "timeout": "4s",
     "optimistic": {
       "enabled": true,
-      "timeout": "1h0m0s"
+      "timeout": "1h"
     }
   },
   "http_clients": [
@@ -167,7 +162,6 @@
         "172.19.0.1/30",
         "fdfe:dcba:9876::1/126"
       ],
-      "dns_mode": "hijack",
       "auto_route": true,
       "strict_route": true,
       "udp_timeout": "60s",
@@ -345,10 +339,6 @@
         "action": "reject"
       },
       {
-        "rule_set": "httpdns-block",
-        "action": "reject"
-      },
-      {
         "protocol": "dns",
         "action": "hijack-dns"
       },
@@ -430,8 +420,7 @@
       {
         "tag": "geoip-cn",
         "type": "remote",
-        "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geoip@rule-set/geoip-cn.srs",
-        "format": "binary"
+        "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geoip@rule-set/geoip-cn.srs"
       },
       {
         "tag": [
@@ -445,8 +434,7 @@
           "geosite-geolocation-!cn"
         ],
         "type": "remote",
-        "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geosite@rule-set/{tag}.srs",
-        "format": "binary"
+        "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geosite@rule-set/{tag}.srs"
       },
       {
         "tag": [
@@ -457,12 +445,10 @@
           "telegram-dc13",
           "telegram-dc24",
           "fakeip-filter",
-          "httpdns-block",
           "speedtest-international"
         ],
         "type": "remote",
-        "url": "https://cdn.jsdelivr.net/gh/fa1nes/sing-box-rules@main/srs/{tag}.srs",
-        "format": "binary"
+        "url": "https://cdn.jsdelivr.net/gh/fa1nes/sing-box-rules@main/srs/{tag}.srs"
       }
     ],
     "final": "PROXY",
