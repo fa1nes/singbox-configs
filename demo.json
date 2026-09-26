@@ -55,6 +55,14 @@
         "action": "predefined"
       },
       {
+        "domain": [
+          "cpa.loocc.com",
+          "sub-store.loocc.com"
+        ],
+        "action": "route",
+        "server": "aliyun"
+      },
+      {
         "rule_set": "fakeip-filter",
         "action": "route",
         "server": "aliyun"
@@ -135,9 +143,13 @@
       }
     ],
     "final": "cloudflare",
+    "cache_capacity": 2048,
     "reverse_mapping": true,
     "timeout": "4s",
-    "optimistic": true
+    "optimistic": {
+      "enabled": true,
+      "timeout": "1h0m0s"
+    }
   },
   "http_clients": [
     {
@@ -174,6 +186,7 @@
         "172.18.0.1/30",
         "fdfe:dcba:9876::1/126"
       ],
+      "dns_mode": "hijack",
       "auto_route": true,
       "auto_redirect": true,
       "strict_route": true,
@@ -182,7 +195,8 @@
       ],
       "include_interface": [
         "br-lan"
-      ]
+      ],
+      "udp_timeout": "60s"
     },
     {
       "tag": "socks-lan",
@@ -252,6 +266,16 @@
       ],
       "exclude": "(?i)(warp)",
       "include": "(?i)(香港|港|🇭🇰|hong ?kong|(^|[^a-z])hkg?([0-9]+)?([^a-z]|$))",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "TW",
+      "type": "selector",
+      "providers": [
+        "SUB"
+      ],
+      "exclude": "(?i)(warp)",
+      "include": "(?i)(台湾|臺灣|台灣|🇹🇼|tai ?wan|(^|[^a-z])tw([0-9]+)?([^a-z]|$))",
       "interrupt_exist_connections": true
     },
     {
@@ -391,6 +415,10 @@
         "action": "reject"
       },
       {
+        "rule_set": "httpdns-block",
+        "action": "reject"
+      },
+      {
         "protocol": "dns",
         "action": "hijack-dns"
       },
@@ -401,6 +429,17 @@
       {
         "clash_mode": "Global",
         "outbound": "GLOBAL"
+      },
+      {
+        "domain": [
+          "cpa.loocc.com",
+          "sub-store.loocc.com"
+        ],
+        "outbound": "DIRECT"
+      },
+      {
+        "domain_suffix": "bgp.tools",
+        "outbound": "TW"
       },
       {
         "domain": "token.safebrowsing.apple",
@@ -480,6 +519,7 @@
           "doh-block",
           "polluted-ip",
           "fakeip-filter",
+          "httpdns-block",
           "speedtest-international"
         ],
         "type": "remote",
@@ -518,15 +558,12 @@
       "enabled": true,
       "path": "/etc/sing-box/cache.db",
       "cache_id": "immortalwrt-dualstack",
-      "store_fakeip": true,
-      "store_dns": true,
-      "flush_interval": "5m"
+      "store_fakeip": true
     },
     "clash_api": {
       "external_controller": "0.0.0.0:9091",
       "external_ui": "/etc/sing-box/zashboard",
       "external_ui_download_url": "https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip",
-      "external_ui_download_detour": "PROXY",
       "secret": "你的API密钥"
     }
   }
