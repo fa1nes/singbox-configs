@@ -43,7 +43,6 @@
     "rules": [
       {
         "preferred_by": "tailscale",
-        "action": "route",
         "server": "tailscale",
         "disable_optimistic_cache": true
       },
@@ -59,22 +58,18 @@
           "cpa.loocc.com",
           "sub-store.loocc.com"
         ],
-        "action": "route",
         "server": "aliyun"
       },
       {
         "rule_set": "fakeip-filter",
-        "action": "route",
         "server": "aliyun"
       },
       {
         "rule_set": "geosite-apple",
-        "action": "route",
         "server": "aliyun"
       },
       {
         "domain_suffix": "telegram.org",
-        "action": "route",
         "server": "cloudflare"
       },
       {
@@ -138,7 +133,6 @@
           "A",
           "AAAA"
         ],
-        "action": "route",
         "server": "fakeip"
       }
     ],
@@ -148,7 +142,7 @@
     "timeout": "4s",
     "optimistic": {
       "enabled": true,
-      "timeout": "1h0m0s"
+      "timeout": "1h"
     }
   },
   "http_clients": [
@@ -186,7 +180,6 @@
         "172.18.0.1/30",
         "fdfe:dcba:9876::1/126"
       ],
-      "dns_mode": "hijack",
       "auto_route": true,
       "auto_redirect": true,
       "strict_route": true,
@@ -314,11 +307,11 @@
       "type": "remote",
       "url": "https://example.com/subscription",
       "http_client": "sub-download",
-      "update_interval": "24h0m0s",
+      "update_interval": "24h",
       "health_check": {
         "enabled": true,
         "url": "https://example.com/subscription",
-        "interval": "1h0m0s",
+        "interval": "1h",
         "timeout": "10s"
       }
     }
@@ -415,10 +408,6 @@
         "action": "reject"
       },
       {
-        "rule_set": "httpdns-block",
-        "action": "reject"
-      },
-      {
         "protocol": "dns",
         "action": "hijack-dns"
       },
@@ -495,8 +484,7 @@
       {
         "tag": "geoip-cn",
         "type": "remote",
-        "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geoip@rule-set/geoip-cn.srs",
-        "format": "binary"
+        "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geoip@rule-set/geoip-cn.srs"
       },
       {
         "tag": [
@@ -510,8 +498,7 @@
           "geosite-geolocation-!cn"
         ],
         "type": "remote",
-        "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geosite@rule-set/{tag}.srs",
-        "format": "binary"
+        "url": "https://cdn.jsdelivr.net/gh/SagerNet/sing-geosite@rule-set/{tag}.srs"
       },
       {
         "tag": [
@@ -519,12 +506,10 @@
           "doh-block",
           "polluted-ip",
           "fakeip-filter",
-          "httpdns-block",
           "speedtest-international"
         ],
         "type": "remote",
-        "url": "https://cdn.jsdelivr.net/gh/fa1nes/sing-box-rules@main/srs/{tag}.srs",
-        "format": "binary"
+        "url": "https://cdn.jsdelivr.net/gh/fa1nes/sing-box-rules@main/srs/{tag}.srs"
       }
     ],
     "final": "PROXY",
@@ -548,8 +533,7 @@
         "enabled": true,
         "path": "/etc/sing-box/dashboard",
         "download_url": "https://example.com/subscription",
-        "http_client": "rule-download",
-        "update_interval": "1d"
+        "http_client": "rule-download"
       }
     }
   ],
