@@ -55,6 +55,14 @@
         "action": "predefined"
       },
       {
+        "domain": [
+          "cpa.loocc.com",
+          "sub-store.loocc.com"
+        ],
+        "action": "route",
+        "server": "aliyun"
+      },
+      {
         "rule_set": "fakeip-filter",
         "action": "route",
         "server": "aliyun"
@@ -135,9 +143,13 @@
       }
     ],
     "final": "cloudflare",
+    "cache_capacity": 4096,
     "reverse_mapping": true,
     "timeout": "4s",
-    "optimistic": true
+    "optimistic": {
+      "enabled": true,
+      "timeout": "1h0m0s"
+    }
   },
   "http_clients": [
     {
@@ -168,8 +180,10 @@
         "172.19.0.1/30",
         "fdfe:dcba:9876::1/126"
       ],
+      "dns_mode": "hijack",
       "auto_route": true,
       "strict_route": true,
+      "udp_timeout": "60s",
       "platform": {
         "http_proxy": {
           "enabled": true,
@@ -252,6 +266,16 @@
       ],
       "exclude": "(?i)(warp)",
       "include": "(?i)(香港|港|🇭🇰|hong ?kong|(^|[^a-z])hkg?([0-9]+)?([^a-z]|$))",
+      "interrupt_exist_connections": true
+    },
+    {
+      "tag": "TW",
+      "type": "selector",
+      "providers": [
+        "SUB"
+      ],
+      "exclude": "(?i)(warp)",
+      "include": "(?i)(台湾|臺灣|台灣|🇹🇼|tai ?wan|(^|[^a-z])tw([0-9]+)?([^a-z]|$))",
       "interrupt_exist_connections": true
     },
     {
@@ -394,6 +418,10 @@
         "action": "reject"
       },
       {
+        "rule_set": "httpdns-block",
+        "action": "reject"
+      },
+      {
         "protocol": "dns",
         "action": "hijack-dns"
       },
@@ -408,6 +436,17 @@
       {
         "clash_mode": "Global",
         "outbound": "GLOBAL"
+      },
+      {
+        "domain": [
+          "cpa.loocc.com",
+          "sub-store.loocc.com"
+        ],
+        "outbound": "DIRECT"
+      },
+      {
+        "domain_suffix": "bgp.tools",
+        "outbound": "TW"
       },
       {
         "rule_set": "speedtest-international",
@@ -428,6 +467,10 @@
       {
         "rule_set": "geosite-category-ai-!cn",
         "outbound": "US"
+      },
+      {
+        "rule_set": "geosite-meta",
+        "outbound": "TW"
       },
       {
         "rule_set": "emby",
@@ -481,6 +524,7 @@
       {
         "tag": [
           "geosite-cn",
+          "geosite-meta",
           "geosite-apple",
           "geosite-google",
           "geosite-google-gemini",
@@ -502,6 +546,7 @@
           "telegram-dc13",
           "telegram-dc24",
           "fakeip-filter",
+          "httpdns-block",
           "speedtest-international"
         ],
         "type": "remote",
@@ -518,15 +563,12 @@
     "cache_file": {
       "enabled": true,
       "path": "cache.db",
-      "store_fakeip": true,
-      "store_dns": true,
-      "flush_interval": "5m"
+      "store_fakeip": true
     },
     "clash_api": {
       "external_controller": "127.0.0.1:9090",
       "external_ui": "zashboard",
-      "external_ui_download_url": "https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip",
-      "external_ui_download_detour": "PROXY"
+      "external_ui_download_url": "https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
     }
   }
 }
