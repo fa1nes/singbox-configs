@@ -166,6 +166,7 @@
       "type": "tailscale",
       "detour": "DIRECT",
       "state_directory": "ts-state",
+      "on_demand": true,
       "accept_routes": true
     }
   ],
