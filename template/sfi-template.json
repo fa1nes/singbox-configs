@@ -148,10 +148,9 @@
       }
     ],
     "final": "cloudflare",
-    "cache_capacity": 1024,
     "optimistic": {
       "enabled": true,
-      "timeout": "10m"
+      "timeout": "1h"
     },
     "timeout": "2s"
   },
@@ -167,7 +166,6 @@
       "type": "tailscale",
       "detour": "DIRECT",
       "state_directory": "ts-state",
-      "on_demand": true,
       "accept_routes": true
     }
   ],
@@ -178,8 +176,10 @@
       "address": [
         "172.19.0.1/30"
       ],
+      "mtu": 4064,
+      "dns_mode": "hijack",
       "auto_route": true,
-      "udp_timeout": "10s",
+      "udp_timeout": "5m",
       "platform": {
         "http_proxy": {
           "enabled": true,
@@ -329,12 +329,6 @@
       {
         "rule_set": "emby",
         "outbound": "EMBY"
-      },
-      {
-        "rule_set": "geosite-youtube",
-        "action": "resolve",
-        "server": "cloudflare",
-        "strategy": "prefer_ipv6"
       },
       {
         "rule_set": "geosite-youtube",
