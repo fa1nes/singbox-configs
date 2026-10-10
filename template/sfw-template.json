@@ -389,6 +389,12 @@
       },
       {
         "rule_set": "geosite-youtube",
+        "action": "resolve",
+        "server": "cloudflare",
+        "strategy": "prefer_ipv6"
+      },
+      {
+        "rule_set": "geosite-youtube",
         "outbound": "YOUTUBE"
       },
       {
