@@ -24,10 +24,15 @@ const REGION_PATTERNS = {
 
 // 入口节点的识别靠名字里的线路标记。大小写一律不敏感，且入口候选词后面不再要求
 // 词边界——TencentCloud 这类粘连写法也要认。只在词首设界，避免命中别的单词尾巴。
+// Sha 是 Shanghai 的机场常用缩写（SHA-CU-JP），但必须挡住后面还跟着字母的情况
+// （shadowsocks / sha256 之类），所以给它加了负向断言。
 const CHAIN_ENTRY_PATTERNS = [
   { label: 'IEPL', pattern: /(?:^|[^a-z])iepl/i },
   { label: 'IPLC', pattern: /(?:^|[^a-z])iplc/i },
   { label: 'Tencent', pattern: /(?:^|[^a-z])tencent/i },
+  { label: 'Taizhou', pattern: /(?:^|[^a-z])taizhou/i },
+  { label: 'Shanghai', pattern: /(?:^|[^a-z])(?:shanghai|sha(?![a-z]))/i },
+  { label: 'Beijing', pattern: /(?:^|[^a-z])beijing/i },
 ];
 
 const TAG_REPLACEMENTS = [
@@ -40,10 +45,16 @@ const TAG_REPLACEMENTS = [
   // 只把中文写法转成 ASCII（腾讯云 → Tencent），因为 sanitizeTag 会把非 ASCII 整段抹掉、
   // 入口标记跟着消失。英文写法一律不动，免得把 Tencent-HK 改成 Tencent -HK。
   [/\u817e\u8baf(?:\u4e91)?/gu, 'Tencent '],
+  // 入口城市同理：中文名不转成 ASCII 就认不出来（台州/上海/北京 → Taizhou/Shanghai/Beijing）。
+  [/\u53f0\u5dde/gu, 'Taizhou '],
+  [/\u4e0a\u6d77/gu, 'Shanghai '],
+  [/\u5317\u4eac/gu, 'Beijing '],
   [/\u514d\u8d39|\u514d\u8cbb/gu, ' FREE '],
 ];
 
-const CHAIN_REGIONS = ['HK', 'TW', 'SG', 'US', 'JP'];
+// 可以作为落地地区参与链式的地区。DE 一度漏在这里——REGION_PATTERNS 明明认德国，
+// 但 CHAIN_REGIONS 不含 DE，德国落地就永远配不上入口。
+const CHAIN_REGIONS = ['HK', 'TW', 'SG', 'US', 'JP', 'DE'];
 const BASE_TAGS = new Set(['DIRECT']);
 
 // 模板里固定存在的策略组
@@ -113,25 +124,36 @@ function artifactType(value) {
 function buildDetourTopology(primary, landing, usedTags) {
   if (!landing.length) return { visible: primary, support: [] };
 
-  const landingByRegion = Object.fromEntries(CHAIN_REGIONS.map((region) => [region, []]));
+  // 落地节点先带上地区标签。名字里认不出地区的落地无法参与配对（链节点的 tag 要靠地区命名），
+  // 直接丢掉，不做兜底——否则会生成一堆叫不出名字的链。
+  const landings = [];
   for (const proxy of landing) {
     const region = matchRegion(proxy.tag, CHAIN_REGIONS);
-    if (region) landingByRegion[region].push(proxy);
+    if (region) landings.push({ proxy, region });
   }
+  if (!landings.length) return { visible: primary, support: [] };
 
   const visible = [];
   const support = new Map();
   for (const proxy of primary) {
     const entryLabel = matchChainEntry(proxy.tag);
-    const region = matchRegion(proxy.tag, CHAIN_REGIONS);
-    const candidates = region ? landingByRegion[region] : [];
-    if (!entryLabel || !region || !candidates.length) {
+    if (!entryLabel) {
+      visible.push(proxy);
+      continue;
+    }
+
+    // 入口自带地区（IEPL-HK / Tencent-SG）就只配同地区落地；入口不带地区
+    // （Taizhou / Shanghai / Beijing 这类纯城市名）则与每个地区各配一条，
+    // 于是每个地区组里都能选到"从台州出去"还是"从上海出去"。
+    const entryRegion = matchRegion(proxy.tag, CHAIN_REGIONS);
+    const pairs = entryRegion ? landings.filter((item) => item.region === entryRegion) : landings;
+    if (!pairs.length) {
       visible.push(proxy);
       continue;
     }
 
     support.set(proxy.tag, proxy);
-    for (const landingProxy of candidates) {
+    for (const { proxy: landingProxy, region } of pairs) {
       visible.push({
         ...landingProxy,
         tag: nextGeneratedTag(`${entryLabel} -> ${region}`, usedTags),
