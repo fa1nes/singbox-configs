@@ -59,5 +59,20 @@ https://raw.githubusercontent.com/fa1nes/singbox-configs/sub-store/js/sfi-substo
 - `type=0` 表示单条订阅。
 - `type=1` 表示组合订阅。
 - `name` 是 Sub-Store 中订阅或组合订阅的名称，不是显示名称。
+- `landing_name` / `landing_type` 可选，指向落地订阅（`landing_type` 与 `type` 同义）。带上
+  这两个参数才会生成链式节点，例如
+  `...sfw-substore.js#type=0&name=入口订阅&landing_name=落地订阅&landing_type=0#noCache`。
 - `#noCache` 表示关闭 Sub-Store 拉取远程文件/脚本时的缓存，模板链接和脚本链接都已默认携带。
 - 生成后的 Windows 配置不依赖 sing-box `providers` 字段，可用于官方 sing-box 内核。
+
+## 链式代理
+
+配置了 `landing_name` 之后，脚本会把入口订阅里命中的节点和落地订阅里**同地区**的节点配成
+一条链，链节点形如 `Tencent -> HK` / `IEPL -> HK`，其 `detour` 指向入口节点；入口节点本身
+不再出现在策略组里，只在 `detour` 引用中保留。
+
+- 入口的判定看节点名：包含 `IEPL`、`IPLC` 或 `Tencent` 即视为入口。大小写不敏感，
+  `TencentCloud-HK` 这类粘连写法也认，中文 `腾讯云` / `腾讯` 会被归一成 `Tencent`。
+- 地区按节点名判定（`HK`、`TW`、`SG`、`US`、`JP`、`DE`）。落地订阅里没有同地区节点时，
+  该入口不做链式处理，保持直连，也不会产生悬空引用。
+- 落地订阅里的节点只用于配对，不会作为独立节点出现在面板上。
