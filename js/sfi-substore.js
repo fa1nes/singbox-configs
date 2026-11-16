@@ -22,9 +22,12 @@ const REGION_PATTERNS = {
   DE: /germany|frankfurt|(?:^|[^a-z])de(?:\d+)?(?:[^a-z]|$)/i,
 };
 
+// 入口节点的识别靠名字里的线路标记。大小写一律不敏感，且入口候选词后面不再要求
+// 词边界——TencentCloud 这类粘连写法也要认。只在词首设界，避免命中别的单词尾巴。
 const CHAIN_ENTRY_PATTERNS = [
-  { label: 'IEPL', pattern: /(?:^|[^a-z])iepl(?:[^a-z]|$)/i },
-  { label: 'IPLC', pattern: /(?:^|[^a-z])iplc(?:[^a-z]|$)/i },
+  { label: 'IEPL', pattern: /(?:^|[^a-z])iepl/i },
+  { label: 'IPLC', pattern: /(?:^|[^a-z])iplc/i },
+  { label: 'Tencent', pattern: /(?:^|[^a-z])tencent/i },
 ];
 
 const TAG_REPLACEMENTS = [
@@ -34,6 +37,9 @@ const TAG_REPLACEMENTS = [
   [/\u7f8e\u56fd|\u7f8e\u570b|\u7f8e\u897f|\u7f8e\u4e1c|\u7f8e\u6771|\u{1F1FA}\u{1F1F8}/gu, ' US '],
   [/\u65e5\u672c|\u4e1c\u4eac|\u6771\u4eac|\u{1F1EF}\u{1F1F5}/gu, ' JP '],
   [/\u5fb7\u56fd|\u5fb7\u570b|\u6cd5\u5170\u514b\u798f|\u6cd5\u862d\u514b\u798f|\u{1F1E9}\u{1F1EA}/gu, ' DE '],
+  // 只把中文写法转成 ASCII（腾讯云 → Tencent），因为 sanitizeTag 会把非 ASCII 整段抹掉、
+  // 入口标记跟着消失。英文写法一律不动，免得把 Tencent-HK 改成 Tencent -HK。
+  [/\u817e\u8baf(?:\u4e91)?/gu, 'Tencent '],
   [/\u514d\u8d39|\u514d\u8cbb/gu, ' FREE '],
 ];
 
