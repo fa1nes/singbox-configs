@@ -68,7 +68,7 @@ https://raw.githubusercontent.com/fa1nes/singbox-configs/sub-store/js/sfi-substo
 ## 链式代理
 
 配置了 `landing_name` 之后，脚本会把入口订阅里命中的节点和落地订阅里的节点配成一条链，
-链节点形如 `Taizhou -> HK` / `IEPL -> HK`，其 `detour` 指向入口节点；入口节点本身不再出现
+链节点形如 `Taizhou->HK` / `IEPL->HK`，其 `detour` 指向入口节点；入口节点本身不再出现
 在策略组里，只在 `detour` 引用中保留。
 
 - 入口的判定看节点名：包含 `IEPL`、`IPLC`、`Tencent`、`Taizhou`、`Shanghai`（含缩写
