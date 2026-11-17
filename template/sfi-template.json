@@ -77,13 +77,6 @@
         "server": "cloudflare"
       },
       {
-        "rule_set": [
-          "geosite-cn",
-          "geosite-geolocation-cn"
-        ],
-        "server": "aliyun"
-      },
-      {
         "query_type": "A",
         "server": "fakeip"
       }
