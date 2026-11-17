@@ -10,6 +10,12 @@
   "dns": {
     "servers": [
       {
+        "tag": "aliyun",
+        "type": "https",
+        "detour": "DIRECT",
+        "server": "223.5.5.5"
+      },
+      {
         "tag": "cloudflare",
         "type": "https",
         "detour": "PROXY",
@@ -43,15 +49,22 @@
       },
       {
         "rule_set": "fakeip-filter",
-        "server": "cloudflare"
+        "server": "aliyun"
       },
       {
         "rule_set": "geosite-apple",
-        "server": "cloudflare"
+        "server": "aliyun"
       },
       {
         "domain_suffix": "telegram.org",
         "server": "cloudflare"
+      },
+      {
+        "rule_set": [
+          "geosite-cn",
+          "geosite-geolocation-cn"
+        ],
+        "server": "aliyun"
       },
       {
         "query_type": [
@@ -166,7 +179,7 @@
     {
       "tag": "DIRECT",
       "type": "direct",
-      "domain_resolver": "cloudflare"
+      "domain_resolver": "aliyun"
     },
     {
       "tag": "bridge-out",
@@ -347,7 +360,7 @@
       },
       {
         "action": "resolve",
-        "server": "cloudflare",
+        "server": "aliyun",
         "strategy": "prefer_ipv4"
       },
       {
@@ -396,7 +409,7 @@
     ],
     "final": "PROXY",
     "auto_detect_interface": true,
-    "default_domain_resolver": "cloudflare",
+    "default_domain_resolver": "aliyun",
     "default_http_client": "rule-download"
   },
   "experimental": {
