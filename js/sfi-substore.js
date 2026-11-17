@@ -156,7 +156,7 @@ function buildDetourTopology(primary, landing, usedTags) {
     for (const { proxy: landingProxy, region } of pairs) {
       visible.push({
         ...landingProxy,
-        tag: nextGeneratedTag(`${entryLabel} -> ${region}`, usedTags),
+        tag: nextGeneratedTag(`${entryLabel}->${region}`, usedTags),
         detour: proxy.tag,
       });
     }
