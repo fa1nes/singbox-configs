@@ -16,6 +16,12 @@
         "server": "223.5.5.5"
       },
       {
+        "tag": "unicom",
+        "type": "udp",
+        "detour": "DIRECT",
+        "server": "202.106.46.151"
+      },
+      {
         "tag": "cloudflare",
         "type": "https",
         "detour": "PROXY",
@@ -75,6 +81,66 @@
       {
         "domain_suffix": "telegram.org",
         "server": "cloudflare"
+      },
+      {
+        "query_type": "A",
+        "rule_set": "geosite-geolocation-!cn",
+        "invert": true,
+        "timeout": "300ms",
+        "action": "evaluate",
+        "server": "unicom",
+        "tag": "cn-isp",
+        "speculative": true
+      },
+      {
+        "query_type": "A",
+        "rule_set": "geosite-geolocation-!cn",
+        "invert": true,
+        "timeout": "300ms",
+        "action": "evaluate",
+        "server": "aliyun",
+        "tag": "cn-doh",
+        "speculative": true
+      },
+      {
+        "query_type": "A",
+        "match_response": "cn-isp",
+        "response_rcode": "NOERROR",
+        "rule_set": "geoip-cn",
+        "ip_accept_any": true,
+        "action": "respond",
+        "race": true
+      },
+      {
+        "query_type": "A",
+        "match_response": "cn-doh",
+        "response_rcode": "NOERROR",
+        "rule_set": "geoip-cn",
+        "ip_accept_any": true,
+        "action": "respond",
+        "race": true
+      },
+      {
+        "rule_set": [
+          "geosite-cn",
+          "geosite-geolocation-cn"
+        ],
+        "match_response": "cn-isp",
+        "response_rcode": "NOERROR",
+        "ip_accept_any": true,
+        "action": "respond",
+        "race": true
+      },
+      {
+        "rule_set": [
+          "geosite-cn",
+          "geosite-geolocation-cn"
+        ],
+        "match_response": "cn-doh",
+        "response_rcode": "NOERROR",
+        "ip_accept_any": true,
+        "action": "respond",
+        "race": true
       },
       {
         "query_type": "A",
