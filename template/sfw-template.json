@@ -10,18 +10,6 @@
   "dns": {
     "servers": [
       {
-        "tag": "aliyun",
-        "type": "https",
-        "detour": "DIRECT",
-        "server": "223.5.5.5"
-      },
-      {
-        "tag": "unicom",
-        "type": "udp",
-        "detour": "DIRECT",
-        "server": "202.106.46.151"
-      },
-      {
         "tag": "cloudflare",
         "type": "https",
         "detour": "PROXY",
@@ -55,71 +43,15 @@
       },
       {
         "rule_set": "fakeip-filter",
-        "server": "aliyun"
+        "server": "cloudflare"
       },
       {
         "rule_set": "geosite-apple",
-        "server": "aliyun"
+        "server": "cloudflare"
       },
       {
         "domain_suffix": "telegram.org",
         "server": "cloudflare"
-      },
-      {
-        "rule_set": "geosite-geolocation-!cn",
-        "invert": true,
-        "timeout": "300ms",
-        "action": "evaluate",
-        "server": "unicom",
-        "tag": "cn-isp",
-        "speculative": true
-      },
-      {
-        "rule_set": "geosite-geolocation-!cn",
-        "invert": true,
-        "timeout": "300ms",
-        "action": "evaluate",
-        "server": "aliyun",
-        "tag": "cn-doh",
-        "speculative": true
-      },
-      {
-        "match_response": "cn-isp",
-        "response_rcode": "NOERROR",
-        "rule_set": "geoip-cn",
-        "ip_accept_any": true,
-        "action": "respond",
-        "race": true
-      },
-      {
-        "match_response": "cn-doh",
-        "response_rcode": "NOERROR",
-        "rule_set": "geoip-cn",
-        "ip_accept_any": true,
-        "action": "respond",
-        "race": true
-      },
-      {
-        "rule_set": [
-          "geosite-cn",
-          "geosite-geolocation-cn"
-        ],
-        "match_response": "cn-isp",
-        "response_rcode": "NOERROR",
-        "ip_accept_any": true,
-        "action": "respond",
-        "race": true
-      },
-      {
-        "rule_set": [
-          "geosite-cn",
-          "geosite-geolocation-cn"
-        ],
-        "match_response": "cn-doh",
-        "response_rcode": "NOERROR",
-        "ip_accept_any": true,
-        "action": "respond",
-        "race": true
       },
       {
         "query_type": [
@@ -234,7 +166,7 @@
     {
       "tag": "DIRECT",
       "type": "direct",
-      "domain_resolver": "aliyun"
+      "domain_resolver": "cloudflare"
     },
     {
       "tag": "bridge-out",
@@ -415,7 +347,7 @@
       },
       {
         "action": "resolve",
-        "server": "aliyun",
+        "server": "cloudflare",
         "strategy": "prefer_ipv4"
       },
       {
@@ -464,7 +396,7 @@
     ],
     "final": "PROXY",
     "auto_detect_interface": true,
-    "default_domain_resolver": "aliyun",
+    "default_domain_resolver": "cloudflare",
     "default_http_client": "rule-download"
   },
   "experimental": {
